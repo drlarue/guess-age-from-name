@@ -11,8 +11,8 @@ class GuessAge:
         * df_raw_yob: dataframe with columns ['sex', 'yob', 'no_count']
     """
     def __init__(self, df_raw_name, df_raw_yob):
-        self.df_male_name = self.master_df_sex(df_raw_name, 1)
-        self.df_female_name = self.master_df_sex(df_raw_name, 2)
+        self.df_male_name, self.male_name_list = self.master_df_sex(df_raw_name, 1)
+        self.df_female_name, self.female_name_list = self.master_df_sex(df_raw_name, 2)
 
         self.df_male_yob = self.yob_dist_df_sex(df_raw_yob, 1)
         self.df_female_yob = self.yob_dist_df_sex(df_raw_yob, 2)
@@ -24,6 +24,7 @@ class GuessAge:
         """
         df_sex = merged_name_df[merged_name_df.sex == sex].copy()
         df_sex.drop(['sex'], axis=1, inplace=True)
+        df_sex.name = df_sex.name.str.lower()
 
         # create a list of unique names by sex
         unique_names_by_sex = df_sex.name.unique().tolist()
@@ -40,7 +41,7 @@ class GuessAge:
 
         master_df.fillna(value=0, inplace=True)
 
-        return master_df
+        return master_df, unique_names_by_sex
 
 
     def yob_dist_df_sex(self, cleaned_yob_dist_df, sex):
@@ -64,7 +65,8 @@ class GuessAge:
         return df.loc[year].proportion
 
 
-    def p_yob_given_name(self, sex, name):
+    def p_yob_given_name(self, sex, raw_name):
+        name = raw_name.lower()
 
         if sex == 'M':
             df_name = self.df_male_name
@@ -78,7 +80,7 @@ class GuessAge:
         l = {}
         p3 = 0
 
-        for i in range(1916, 2017):
+        for i in np.arange(1916, 2017):
             p1 = self.p_name_given_yob(df_name, i, name)
             p2 = self.p_yob(df_yob, i)
             p3 += p1 * p2
@@ -106,5 +108,5 @@ class GuessAge:
         plt.xlim([0, 100])
         plt.xticks(range(0, 100, 5))
         plt.title('Age Distribution of {} Named {}'.format('Males' if sex == 'M'
-                                                           else 'Females', name))
+                                                           else 'Females', name.title()))
         return plt.show()

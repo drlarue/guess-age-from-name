@@ -4,55 +4,17 @@ import pandas as pd
 
 class GuessAge:
     """
-    Holds the data and provides methods to calculate probability of age given name.
-    Inputs:
-        * df_raw_name: dataframe with columns ['name', sex', 'yob', 'no_count']
-        * df_raw_yob: dataframe with columns ['sex', 'yob', 'no_count']
+    Loads the data and provides methods to calculate probability of age given name.
     """
-    def __init__(self, df_raw_name, df_raw_yob):
-        self.df_male_name, self.male_name_list = self.master_df_sex(df_raw_name, 1)
-        self.df_female_name, self.female_name_list = self.master_df_sex(df_raw_name, 2)
+    def __init__(self):
+        self.df_male_name = pd.read_csv('prep_data/df_male_name.csv', index_col=[0, 1])
+        self.df_female_name = pd.read_csv('prep_data/df_female_name.csv', index_col=[0, 1])
 
-        self.df_male_yob = self.yob_dist_df_sex(df_raw_yob, 1)
-        self.df_female_yob = self.yob_dist_df_sex(df_raw_yob, 2)
+        self.male_name_list = self.df_male_name.loc[1916, :].index.tolist()
+        self.female_name_list = self.df_female_name.loc[1916, :].index.tolist()
 
-
-    def master_df_sex(self, merged_name_df, sex):
-        """
-        Split df_raw_name by sex then create full yob-name product space
-        """
-        df_sex = merged_name_df[merged_name_df.sex == sex].copy()
-        df_sex.drop(['sex'], axis=1, inplace=True)
-        df_sex.name = df_sex.name.str.lower()
-
-        # create a list of unique names by sex
-        unique_names_by_sex = df_sex.name.unique().tolist()
-        unique_names_by_sex.sort()
-
-        years = df_sex.yob.unique().tolist()
-        # create every pairing of yob and name
-        idx_prod = [years, unique_names_by_sex]
-        yob_name_idx = pd.MultiIndex.from_product(idx_prod, names=['yob', 'name'])
-        full_idx_df = pd.DataFrame(index=yob_name_idx)
-
-        master_df = pd.merge(full_idx_df.reset_index(), df_sex, on=['yob', 'name'],
-                             how='left').set_index(['yob','name']).sort_index()
-
-        master_df.fillna(value=0, inplace=True)
-
-        return master_df, unique_names_by_sex
-
-
-    def yob_dist_df_sex(self, cleaned_yob_dist_df, sex):
-        """
-        Split df_raw_yob by sex and calculate proportion of yob's
-        """
-        df_sex = cleaned_yob_dist_df[cleaned_yob_dist_df.sex == sex].copy()
-        df_sex['proportion'] = (df_sex.no_count / df_sex.no_count.sum())
-
-        df_sex.set_index(['yob'], inplace=True)
-
-        return df_sex[['proportion']]
+        self.df_male_yob = pd.read_csv('prep_data/df_male_yob.csv', index_col=0)
+        self.df_female_yob = pd.read_csv('prep_data/df_female_yob.csv', index_col=0)
 
 
     def p_name_given_yob(self, df, yob, name):
@@ -90,6 +52,7 @@ class GuessAge:
 
         return df[['yob', 'p']]
 
+
     '''
     def pdf_plot(self, sex, name):
         """
@@ -98,16 +61,22 @@ class GuessAge:
             * sex: 'M' or 'F'
             * name: e.g., 'Tarzan', 'Jane'
         """
-        df = self.p_yob_given_name(sex, name)
-        df['age'] = df.yob.apply(lambda x: 2017-x)
-        df.sort_values(['age'], inplace=True)
+        if ((sex == 'M' and name.lower() not in self.male_name_list) or
+                (sex == 'F' and name.lower() not in self.female_name_list)):
+            return ("Sorry, the database doesn't contain any {} named {}".
+                    format('males' if sex == 'M' else 'females', name.title()))
 
-        plt.plot(df.age, df.p)
-        plt.xlabel('Age')
-        plt.ylabel('Probability')
-        plt.xlim([0, 100])
-        plt.xticks(range(0, 100, 5))
-        plt.title('Age Distribution of {} Named {}'.format('Males' if sex == 'M'
-                                                           else 'Females', name.title()))
-        return plt.show()
+        else:
+            df = self.p_yob_given_name(sex, name)
+            df['age'] = df.yob.apply(lambda x: 2017-x)
+            df.sort_values(['age'], inplace=True)
+
+            plt.plot(df.age, df.p)
+            plt.xlabel('Age')
+            plt.ylabel('Probability')
+            plt.xlim([1, 100])
+            plt.xticks(range(0, 100, 5))
+            plt.title('Age Distribution of {} Named {}'.
+                      format('Males' if sex == 'M' else 'Females', name.title()))
+            return plt.show()
     '''

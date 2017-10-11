@@ -5,8 +5,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from usa_setup import merged_name_df, cleaned_yob_dist_df
 from guess_age import GuessAge
+
+guessy = GuessAge()
+app = dash.Dash()
+server = app.server
 
 markdown_text = '''
 **Note**: This shows the probability distribution of age *conditional* on the provided name
@@ -14,11 +17,6 @@ markdown_text = '''
 It does NOT provide any information about a name's absolute popularity. 
 What it DOES show is a name's relative popularity across ages. 
 Because this is a probability distribution, the area under the curve is 1 for every name.'''
-
-guessy = GuessAge(merged_name_df, cleaned_yob_dist_df)
-
-app = dash.Dash()
-server = app.server
 
 app.layout = html.Div(children=[
     html.H1(children='How Old Is Your Name?'),
@@ -74,9 +72,9 @@ def update_fig(n_click, sex, raw_name):
                 title='Age Distribution of {} Named {}'.
                        format('Males' if sex == 'M' else 'Females', name.title()),
                 titlefont=dict(family='Arial, sans-serif', size=22),
-                yaxis=dict(title='PROBABILITY',
+                yaxis=dict(title='Probability',
                            titlefont=dict(family='Arial, sans-serif', size=15, color='grey')),
-                xaxis=dict(title='AGE',
+                xaxis=dict(title='Age',
                            titlefont=dict(family='Arial, sans-serif', size=15, color='grey'),
                            range=[1, 100],
                            dtick=5)

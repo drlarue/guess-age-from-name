@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib as mpl
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt # remove for heroku app
 
 class GuessAge:
     """
@@ -91,6 +90,7 @@ class GuessAge:
 
         return df[['yob', 'p']]
 
+    '''
     def pdf_plot(self, sex, name):
         """
         Plots pdf of age for the given name among the given sex.
@@ -110,3 +110,4 @@ class GuessAge:
         plt.title('Age Distribution of {} Named {}'.format('Males' if sex == 'M'
                                                            else 'Females', name.title()))
         return plt.show()
+    '''

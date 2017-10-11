@@ -16,7 +16,9 @@ What it DOES show is a name's relative popularity across ages.
 Because this is a probability distribution, the area under the curve is 1 for every name.'''
 
 guessy = GuessAge(merged_name_df, cleaned_yob_dist_df)
+
 app = dash.Dash()
+server = app.server
 
 app.layout = html.Div(children=[
     html.H1(children='How Old Is Your Name?'),

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
@@ -11,12 +10,27 @@ guessy = GuessAge()
 app = dash.Dash()
 server = app.server
 
-markdown_text = '''
+example_text= '''
+Some fun examples to try:
+* Khaleesi (female): you can see when _Game of Thrones_ started on TV
+* Isis (female): notice the sharp drop-off in recent years
+* Barack (male)
+'''
+
+note_text = '''
 **Note**: This shows the probability distribution of age *conditional* on the provided name
 (*i.e.*, the posterior distribution).
 It does NOT provide any information about a name's absolute popularity. 
 What it DOES show is a name's relative popularity across ages. 
-Because this is a probability distribution, the area under the curve is 1 for every name.'''
+Because this is a probability distribution, the area under the curve is 1 for every name.
+'''
+
+source_text = '''
+**Sources**: 
+* [Github repo](https://github.com/drlarue/guess-age-from-name)
+* [Baby Names](https://catalog.data.gov/dataset/baby-names-from-social-security-card-applications-national-level-data) from Social Security Card Applications Data
+* Resident Population by Single Year of Age and Sex, [2016 data from US Census Bureau](https://factfinder.census.gov/bkmk/table/1.0/en/PEP/2016/PEPSYASEXN)
+'''
 
 app.layout = html.Div(children=[
     html.H1(children='How Old Is Your Name?'),
@@ -38,7 +52,11 @@ app.layout = html.Div(children=[
 
     html.Button(id='submit-button', n_clicks=0, children='Submit'),
 
-    html.Div([dcc.Markdown(children=markdown_text)])
+    html.Div([dcc.Markdown(children=example_text)]),
+
+    html.Div([dcc.Markdown(children=note_text)]),
+
+    html.Div([dcc.Markdown(children=source_text)])
 ])
 
 @app.callback(
